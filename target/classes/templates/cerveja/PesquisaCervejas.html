@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://ultraq.net.nz/thymeleaf/layout" 
+	  layout:decorator="/layout/LayoutPadrao"
+	  xmlns:brewer="http://brewer.algaworks.com">
+	  
+<head>
+	<title>Pesquisa Cervejas</title>
+</head>
+
+<body>
+	
+	<section layout:fragment="conteudo">
+	
+		<div class="page-header">
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-sm-10">
+						<h1>Pesquisa de cervejas</h1>
+					</div>
+					<div class="col-sm-2">
+						<div class="aw-page-header-controls">
+							<a class="btn btn-default" th:href="@{/cervejas/novo}">
+								<i class="glyphicon glyphicon-plus-sign"></i>
+								<span class=".hidden-xs .hidden-sm">Nova cerveja</span>
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>			
+		</div>
+		
+		<div class="container-fluid">
+			
+			<form id="frm" method="GET" th:object="${cervejaFilter}">
+				<div class="row">
+					<div class="col-sm-2">
+						<div class="form-group">
+							<label for="sku" class="control-label">SKU</label>
+							<input type="text" id="sku" class="form-control" th:field="*{sku}"/>
+						</div>
+					</div>
+					<div class="col-sm-7">
+						<div class="form-grop">
+							<label for="nome" class="control-label">Nome</label>
+							<input type="text" id="nome" class="form-control" th:field="*{nome}"/>
+						</div>
+					</div>					
+				</div>
+				
+				<div class="row">
+					<div class="col-sm-4">
+						<div class="form-group">
+							<label for="estilo" class="control-label" >Estilo</label>
+							<select id="estilo" class="form-control" th:field="*{estilo}">
+								<option value="">Todos os estilos</option>
+								<option th:each="estilo : ${estilos}" th:value="${estilo.codigo}" th:text="${estilo.nome}"></option>								
+							</select>
+						</div>
+					</div>		
+					<div class="col-sm-5">
+						<div class="form-group">
+							<label for="sabor" class="control-label" >Sabor</label>
+							<select id="sabor" class="form-control" th:field="*{sabor}">
+								<option value="">Todos os sabores</option>
+								<option th:each="sabor : ${sabores}" th:value="${sabor}" th:text="${sabor.descricao}"></option>								
+							</select>
+						</div>
+					</div>													
+				</div>
+				
+				<div class="row">
+					<div class="col-sm-4">
+						<div class="form-group">
+							<label class="control-label">Origem</label>
+							<div class="radio">
+								<th:block th:each="origem : ${origens}">
+									<div class="radio-inline">
+										<input th:id="|id_origem_${origem}|" type="radio" th:value="${origem}" class="form-control" th:field="*{origem}"/>
+										<label th:for="|id_origem_${origem}|" th:text="${origem.descricao}">Nacional</label>
+									</div>																	
+								</th:block>
+								
+								<div class="radio-inline">
+									<input id="todasOrigens" type="radio" th:checked="*{origem} == null"  class="form-control" name="origem"/>
+									<label for="todasOrigens">Todas</label>
+								</div>
+							</div>	
+						</div>
+					</div>
+					<div class="col-sm-5">
+						<div class="form-group">							
+							<label for="valorDe" class="control-label">Valor unitário</label>
+							<div class="form-inline">					
+								<input id="valorDe" type="text" class="form-control js-decimal aw-form-control-inline-sm" th:field="*{valorDe}" />
+								<label for="valorAte" class="control-form">até</label>		
+								<input id="valorAte" type="text" class="form-control js-decimal aw-form-control-inline-sm" th:field="*{valorAte}" />							
+							</div>									
+						</div>											
+					</div>			
+													
+				</div>
+				
+				<div class="form-group">
+					<button class="btn  btn-primary" type="submit">Salvar</button>
+				</div>
+																			
+			</form>
+			
+			<div class="table-responsive bw-tabela-simples">
+				<table class="table table-hover">
+					<thead>
+						<tr>
+							<th class="table-cervejas-col-foto"></th>
+							<th class="table-cervejas-col-sku">SKU</th>
+							<th class="table-cervejas-col-nome">Nome</th>
+							<th class="table-cervejas-col-estilo">Estilo</th>
+							<th class="table-cervejas-col-origem">Origem</th>
+							<th class="table-cervejas-col-valor">Valor</th>
+							<th class="table-cervejas-col-acoes"></th>							
+						</tr>
+						
+					</thead>
+										
+					<tbody>
+						<tr th:each="cerveja : ${pagina.content}">
+							<td class="text-center">
+								<img alt="" th:src="@{/fotos/thumbnail.{foto}(foto=${cerveja.FotoOuMock})}" 
+									class="img-responsive"/>
+							</td>
+							<td th:text="${cerveja.sku}" class="text-center">AA1234</td>
+							<td th:text="${cerveja.nome}">Cerjeva preta alemã</td>
+							<td th:text="${cerveja.estilo.nome}">Pilsen</td>
+							<td th:text="${cerveja.origem.descricao}">Internacional</td>
+							<td th:text="|R$ ${cerveja.valor}|" class="text-right">R$ 8.50</td>
+							<td class="text-center">
+								<a class="btn  btn-link  btn-xs" title="Editar">
+									<i class="glyphicon glyphicon-pencil"></i>
+								</a>
+								<a class="btn  btn-link  btn-xs" title="Excluir">
+									<i class="glyphicon glyphicon-remove"></i>
+								</a>								
+							</td>
+						</tr>	
+						<tr th:if="${#lists.isEmpty(pagina.content)}">
+							<td colspan="7">Nenhum cerveja encontrado.</td>
+						</tr>									
+					</tbody>
+				
+				</table>
+				
+				<div class="col-sm-12 text-center">
+					<nav >
+					  <ul class="pagination pagination-sm">
+					    <li class="disabled">
+					      <a href="#"><span>&laquo;</span></a>
+					    </li>
+					    
+					    <th:block th:each="p : ${#numbers.sequence(1, pagina.totalPages)}">					    
+					    	<li><a th:href="|?page=${p - 1}|">[[${p}]]</a></li>
+					    </th:block>
+
+					    <li class="disabled">
+					      <a href="#"><span>&raquo;</span></a>
+					    </li>
+					  </ul>
+					</nav>								
+				</div>				
+				
+			</div>
+			
+		</div>
+	
+	</section>
+
+</body>
+</html>
